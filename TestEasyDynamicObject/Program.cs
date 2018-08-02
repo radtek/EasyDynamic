@@ -14,10 +14,22 @@ namespace TestEasyDynamicObject
         {
             dynamic edo = new EasyObject();
             EasyObject.LoadCustomFunctions();
+
+            Console.WriteLine("You can input command to be executed... examples :");
+            Console.WriteLine("\t\"Today is \" + DateTime.Today.ToString(\"MMM dd, yyyy\")");
+            Console.WriteLine("\t\"Tomorrow is \" + DateTime.Today.AddDays(1).ToString(\"MMM dd, yyyy\")");
+            Console.WriteLine("\t\"2 days from now is \" + DateTime.Today.AddDays(@Add(1,1)).ToString(\"MMM dd, yyyy\")");
+            Console.WriteLine("\t\"Next week same day is \" + DateTime.Today.AddDays(@Add(1,2*3)).ToString(\"MMM dd, yyyy\")");
+
+            Console.WriteLine();
+            Console.WriteLine("@ Methods Available to use :");
             foreach (KeyValuePair<string, TypeClassMapping> kvPair in EasyObject.Methods)
             {
                 Console.WriteLine("Method Name ==> " + kvPair.Key);
             }
+            Console.WriteLine();
+
+
             while (true) {
                 Console.Write("Please Enter the Command ===>");
                 string command = Console.ReadLine();
@@ -26,15 +38,6 @@ namespace TestEasyDynamicObject
                 string execCommand = EasyObject.ExecuteString(command).ToString();
                 Console.WriteLine("Output of {0} ==> {1} is <<{2}>>", command, execCommand, EasyObject.EvaluateString(execCommand));
             }
-            //edo.LoadCustomFunctions();
-            //edo.MyName = "Arasu Elango";
-            //Console.WriteLine("My name is " + edo.MyName);
-            //edo.MyName = "Elango, Arasu";
-            //Console.WriteLine("Changed name is " + edo.MyName);
-            //edo.Math_SayMyName();
-            //Console.WriteLine("1+2+3+4+5 = " + EasyObject.ExecuteMethod("Add", new int[] { 1,2,3,4,5}));
-            //Console.WriteLine("1+2+3+4 = " +  edo.Add(new int[] { 1, 2, 3, 4}));
-            //Console.WriteLine("Called Method " + edo.GetMyAddress("Arasu", "Elango", "Pipers", "Glen"));
         }
     }
 }
