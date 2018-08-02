@@ -1,4 +1,0 @@
-C:\Users\aelango\LogixHealth\Technology\Software\.Net\EasyETLSolution\EasyFunctions\bin\Debug\Extensions\EasyFunctions.dll
-C:\Users\aelango\LogixHealth\Technology\Software\.Net\EasyETLSolution\EasyFunctions\bin\Debug\Extensions\EasyFunctions.pdb
-C:\Users\aelango\LogixHealth\Technology\Software\.Net\TestEasyDynamicObject\bin\Debug\Extensions\EasyFunctions.dll
-C:\Users\aelango\LogixHealth\Technology\Software\.Net\TestEasyDynamicObject\bin\Debug\Extensions\EasyFunctions.pdb
