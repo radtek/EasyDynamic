@@ -146,7 +146,7 @@ namespace EasyDynamicObject
         }
 
 
-        public static object ExecuteString(string command)
+        public static object ExecuteString(string command,Dictionary<string,object> props = null)
         {
             if (String.IsNullOrWhiteSpace(command)) return false;
             string commandPattern = @"@(?'methodname' [a-zA-Z]\w*)
@@ -165,20 +165,23 @@ namespace EasyDynamicObject
                 object[] methodParams = new object[] { };
                 if (!String.IsNullOrWhiteSpace(commandMatch.Groups["params"].Value))
                 {
-                    methodParams = commandMatch.Groups["params"].Value.Split(',');
+                    string baseString = commandMatch.Groups["params"].Value;
+                    var regex = new Regex("(\\\"(?<Param>[^\\\"]+)\")|(?<Param>[^\\\",]+)");
+                    methodParams = regex.Matches(baseString).Cast<Match>().Select(m => m.Value).ToArray();
+                    //methodParams = commandMatch.Groups["params"].Value.Split(',');
                 }
                 commandResult = ExecuteMethod(methodName, methodParams);
                 command = command.Replace(commandMatch.Value, commandResult.ToString());
             }
-            return EvaluateString(command);
+            return EvaluateString(command,props);
         }
 
         [STAThread]
-        public static string EvaluateString(string strToEvaluate, string providerName = "CSharp")
+        public static string EvaluateString(string strToEvaluate, Dictionary<string,object> props = null)
         {
             try
             {
-                CodeDomProvider codeProvider = CodeDomProvider.CreateProvider(providerName);
+                CodeDomProvider codeProvider = CodeDomProvider.CreateProvider("CSharp");
                 CompilerParameters cp = new CompilerParameters();
 
                 string className = "Class" + System.Guid.NewGuid().ToString().Replace("-", "");
@@ -189,13 +192,31 @@ namespace EasyDynamicObject
 
                 StringBuilder sb = new StringBuilder("");
                 sb.Append("using System;\n");
+                sb.Append("using System.Collections.Generic;\n");
 
                 sb.Append("namespace EasyObject.Evaluator { \n");
-                sb.Append("public class " + className + "{ \n");
-                sb.Append("public object Evaluate(){\n");
-                sb.Append("return " + strToEvaluate + "; \n");
-                sb.Append("} \n");
-                sb.Append("} \n");
+                sb.Append("\tpublic class " + className + "{ \n");
+                if (props != null)
+                {
+                    foreach (KeyValuePair<string, object> kvPair in props)
+                    {
+                        sb.AppendFormat("\t\t{0} {1};\n", kvPair.Value.GetType().Name, kvPair.Key);
+                    }
+                }
+                sb.Append("\t\tpublic object Evaluate(object props = null){\n");
+                if (props != null)
+                {
+                    sb.Append("\t\t\tif ((props !=null) && (props is Dictionary<string,object>)){\n");
+
+                    foreach (KeyValuePair<string, object> kvPair in props)
+                    {
+                        sb.AppendFormat("\t\t\t\t{1} = ({0})((Dictionary<string,object>)props)[\"{1}\"]; \n", kvPair.Value.GetType().Name, kvPair.Key);
+                    }
+                    sb.Append("\t\t\t}\n");
+                }
+                sb.Append("\t\t\treturn " + strToEvaluate + "; \n");
+                sb.Append("\t\t} \n");
+                sb.Append("\t} \n");
                 sb.Append("}\n");
 
                 CompilerResults cr = codeProvider.CompileAssemblyFromSource(cp, sb.ToString());
@@ -209,7 +230,8 @@ namespace EasyDynamicObject
                 Type t = o.GetType();
                 MethodInfo mi = t.GetMethod("Evaluate");
 
-                object s = mi.Invoke(o, null);
+                object s = String.Empty;
+                s = mi.Invoke(o, new object[] { props });
                 return s.ToString();
             }
             catch
