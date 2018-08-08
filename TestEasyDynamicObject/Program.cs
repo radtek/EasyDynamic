@@ -28,15 +28,18 @@ namespace TestEasyDynamicObject
                 Console.WriteLine("Method Name ==> " + kvPair.Key);
             }
             Console.WriteLine();
-
+            Dictionary<string, object> properties = new Dictionary<string, object>();
+            properties.Add("Name", "Arasu Elango");
+            properties.Add("Age", 40);
+            properties.Add("DateOfBirth", new DateTime(1971, 4, 7));
 
             while (true) {
                 Console.Write("Please Enter the Command ===>");
                 string command = Console.ReadLine();
 
                 if (String.IsNullOrWhiteSpace(command)) break;
-                string execCommand = EasyObject.ExecuteString(command).ToString();
-                Console.WriteLine("Output of {0} ==> {1} is <<{2}>>", command, execCommand, EasyObject.EvaluateString(execCommand));
+                string execCommand = EasyObject.ExecuteString(command,properties).ToString();
+                Console.WriteLine("Output of {0} ==> {1} is <<{2}>>", command, execCommand, execCommand);
             }
         }
     }
