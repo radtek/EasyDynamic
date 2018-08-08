@@ -28,9 +28,15 @@ namespace EasyFunctions
             return result;
         }
 
-        public DateTime AddDays(string startDate, string numDays)
+        public DateTime AddDays(object startDate, object numDays)
         {
-            return DateTime.Parse(startDate).AddDays(int.Parse(numDays));
+            DateTime originalDate = DateTime.Today;
+            if (startDate.GetType() == typeof(String)) originalDate = DateTime.Parse(startDate.ToString());
+            if (startDate.GetType() == typeof(DateTime)) originalDate = (DateTime)startDate;
+            int days = int.MinValue;
+            if (numDays.GetType() == typeof(String)) days = int.Parse(numDays.ToString());
+            if (numDays.GetType() == typeof(int)) days = (int)numDays;
+            return originalDate.AddDays(days);
         }
     }
 }
